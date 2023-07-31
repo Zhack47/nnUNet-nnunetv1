@@ -38,7 +38,6 @@ from nnunet.training.learning_rate.poly_lr import poly_lr
 from batchgenerators.utilities.file_and_folder_operations import *
 
 
-
 class AutoPETNet(SegmentationNetwork):
     def __init__(self, network, cl_a, cl_c, cl_s, classifier, fs_a, fs_c, fs_s):
         super().__init__()
@@ -69,23 +68,23 @@ class AutoPETNet(SegmentationNetwork):
 
         skips = []
         seg_outputs = []
-        for d in range(len(self.conv_blocks_context) - 1):
-            x = self.conv_blocks_context[d](x)
+        for d in range(len(self.network.conv_blocks_context) - 1):
+            x = self.network.conv_blocks_context[d](x)
             skips.append(x)
-            if not self.convolutional_pooling:
-                x = self.td[d](x)
+            if not self.network.convolutional_pooling:
+                x = self.network.td[d](x)
 
-        features = x = self.conv_blocks_context[-1](x)
+        features = x = self.network.conv_blocks_context[-1](x)
 
-        for u in range(len(self.tu)):
-            x = self.tu[u](x)
+        for u in range(len(self.network.tu)):
+            x = self.network.tu[u](x)
             x = torch.cat((x, skips[-(u + 1)]), dim=1)
-            x = self.conv_blocks_localization[u](x)
-            seg_outputs.append(self.final_nonlin(self.seg_outputs[u](x)))
+            x = self.network.conv_blocks_localization[u](x)
+            seg_outputs.append(self.network.final_nonlin(self.network.seg_outputs[u](x)))
 
-        if self._deep_supervision and self.do_ds:
+        if self.network._deep_supervision and self.network.do_ds:
             output = tuple([seg_outputs[-1]] + [i(j) for i, j in
-                                              zip(list(self.upscale_logits_ops)[::-1], seg_outputs[:-1][::-1])])
+                                              zip(list(self.network.upscale_logits_ops)[::-1], seg_outputs[:-1][::-1])])
         else:
             output = seg_outputs[-1]
         feature_a, hs_a = self.cl_a(mip_axial)

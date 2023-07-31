@@ -230,9 +230,9 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
                                     patch_size=(1, 16, 16), classification=False)
         """
 
-        model_classiff_axial = SEResNet50(layers=(1, 2, 3, 1), spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
-        model_classiff_coro = SEResNet50(layers=(1, 2, 3, 1), spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
-        model_classiff_sagi = SEResNet50(layers=(1, 2, 3, 1), spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
+        model_classiff_axial = SEResNet50(layers=(3, 4, 6, 3), reduction=4, spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
+        model_classiff_coro = SEResNet50(layers=(3, 4, 6, 3), reduction=4, spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
+        model_classiff_sagi = SEResNet50(layers=(3, 4, 6, 3), reduction=4, spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
         classifier = nn.Sequential(nn.Linear(3 * 256 + 320, 64),
                                     nn.Linear(32, 8),
                                     nn.Linear(8, 2))

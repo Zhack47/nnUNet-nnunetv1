@@ -257,7 +257,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
                                 net_nonlin, net_nonlin_kwargs, True, False, lambda x: x, InitWeights_He(1e-2),
                                 self.net_num_pool_op_kernel_sizes, self.net_conv_kernel_sizes, False, True, True)
 
-        net = AutoPETNet(network, model_classiff_axial, model_classiff_coro, model_classiff_sagi,
+        self.network = AutoPETNet(network, model_classiff_axial, model_classiff_coro, model_classiff_sagi,
                              classifier, feat_size_axial, feat_size_coro, feat_size_sagi)
         network.inference_apply_nonlin = softmax_helper
         if torch.cuda.is_available():

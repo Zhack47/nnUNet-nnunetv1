@@ -20,6 +20,7 @@ import numpy as np
 import torch
 from torch.nn import BCEWithLogitsLoss
 from monai.networks.nets import ViT
+from monai.networks.nets import SEResNet50
 from nnunet.training.data_augmentation.data_augmentation_moreDA import get_moreDA_augmentation
 from nnunet.training.loss_functions.deep_supervision import MultipleOutputLoss2
 from nnunet.utilities.to_torch import maybe_to_torch, to_cuda
@@ -118,7 +119,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                          deterministic, fp16)
-        self.max_num_epochs = 1000
+        self.max_num_epochs = 2
         self.initial_lr = 1e-2
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
@@ -217,13 +218,25 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         feat_size_axial = tuple(img_d // p_d for img_d, p_d in zip(axial_ps, (16, 16, 1)))
         feat_size_coro = tuple(img_d // p_d for img_d, p_d in zip(coro_ps, (16, 1, 16)))
         feat_size_sagi = tuple(img_d // p_d for img_d, p_d in zip(sagi_ps, (1, 16, 16)))
-        model_classiff_axial = ViT(in_channels=self.num_input_channels, 
+
+        """model_classiff_axial = ViT(in_channels=self.num_input_channels, 
                                         img_size=axial_ps,
                                         patch_size=(16, 16, 1), classification=False)
         model_classiff_coro = ViT(in_channels=self.num_input_channels,
                                         img_size=coro_ps,
                                         patch_size=(16, 1, 16), classification=False)
         model_classiff_sagi = ViT(in_channels=self.num_input_channels, 
+                                    img_size=sagi_ps,
+                                    patch_size=(1, 16, 16), classification=False)
+        """
+
+        model_classiff_axial = SEResNet50(spatial_dims=3, in_channels=self.num_input_channels, 
+                                        img_size=axial_ps,
+                                        patch_size=(16, 16, 1), classification=False)
+        model_classiff_coro = SEResNet50(spatial_dims=3, in_channels=self.num_input_channels,
+                                        img_size=coro_ps,
+                                        patch_size=(16, 1, 16), classification=False)
+        model_classiff_sagi = SEResNet50(spatial_dims=3, in_channels=self.num_input_channels, 
                                         img_size=sagi_ps,
                                         patch_size=(1, 16, 16), classification=False)
         classifier = nn.Sequential([nn.Linear(3 * 768 + 320, 512),

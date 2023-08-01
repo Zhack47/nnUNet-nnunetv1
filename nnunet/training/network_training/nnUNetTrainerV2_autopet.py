@@ -65,9 +65,9 @@ class AutoPETNet(SegmentationNetwork):
     def forward(self, x):
 
         if not self.classifier_is_3d:
-            mip_axial = torch.cat([torch.max(x[idx].unsqueeze(0), 4, keepdim=self.classifier_is_3d) for idx in range(np.shape(x)[0])], dim=0)
-            mip_coro = torch.cat([torch.max(x[idx].unsqueeze(0), 3, keepdim=self.classifier_is_3d) for idx in range(np.shape(x)[0])], dim=0)
-            mip_sagi = torch.cat([torch.max(x[idx].unsqueeze(0), 2, keepdim=self.classifier_is_3d) for idx in range(np.shape(x)[0])], dim=0)
+            mip_axial = torch.cat([torch.max(x[idx].unsqueeze(0), 4, keepdim=self.classifier_is_3d)[0] for idx in range(np.shape(x)[0])], dim=0)
+            mip_coro = torch.cat([torch.max(x[idx].unsqueeze(0), 3, keepdim=self.classifier_is_3d)[0] for idx in range(np.shape(x)[0])], dim=0)
+            mip_sagi = torch.cat([torch.max(x[idx].unsqueeze(0), 2, keepdim=self.classifier_is_3d)[0] for idx in range(np.shape(x)[0])], dim=0)
         else:
             mip_axial = torch.cat([torch.max(x[idx].unsqueeze(0), 4, keepdim=self.classifier_is_3d)[0] for idx in range(np.shape(x)[0])], dim=0)
             mip_coro = torch.cat([torch.max(x[idx].unsqueeze(0), 3, keepdim=self.classifier_is_3d)[0] for idx in range(np.shape(x)[0])], dim=0)

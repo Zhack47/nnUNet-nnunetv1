@@ -98,6 +98,7 @@ class AutoPETNet(SegmentationNetwork):
         feature_c, hs_c = self.cl_c(mip_coro)
         feature_s, hs_s = self.cl_s(mip_sagi)
         features = torch.nn.AvgPool3d((4, 4, 4))(skips[-1])
+        print(features.shape)
         print(feature_a.shape)
         print(feature_c.shape)
         print(feature_s.shape)

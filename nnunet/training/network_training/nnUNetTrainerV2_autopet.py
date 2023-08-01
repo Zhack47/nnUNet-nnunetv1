@@ -43,6 +43,8 @@ class AutoPETNet(SegmentationNetwork):
     def __init__(self, network, cl_a, cl_c, cl_s, classifier, fs_a, fs_c, fs_s, classifier_is_3d):
         super().__init__()
         self.network = network
+        self.network.do_ds = True
+        self.network._deep_supervision = True
         self.classifier_is_3d = classifier_is_3d
         self.cl_a = cl_a
         self.cl_c = cl_c
@@ -94,6 +96,7 @@ class AutoPETNet(SegmentationNetwork):
                                               zip(list(self.network.upscale_logits_ops)[::-1], seg_outputs[:-1][::-1])])
         else:
             output = seg_outputs[-1]
+        print(type(output))
         feature_a = self.cl_a(mip_axial)
         feature_c = self.cl_c(mip_coro)
         feature_s = self.cl_s(mip_sagi)
@@ -375,7 +378,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         else:
             output = self.network(data)
             del data
-            l = self.loss(output, target)
+            l = self.loss(output, target) + self.classif_loss(classif, target_class.float())
 
             if do_backprop:
                 l.backward()

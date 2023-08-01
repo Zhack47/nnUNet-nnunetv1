@@ -40,9 +40,10 @@ from batchgenerators.utilities.file_and_folder_operations import *
 
 
 class AutoPETNet(SegmentationNetwork):
-    def __init__(self, network, cl_a, cl_c, cl_s, classifier, fs_a, fs_c, fs_s):
+    def __init__(self, network, cl_a, cl_c, cl_s, classifier, fs_a, fs_c, fs_s, classifier_is_3d):
         super().__init__()
         self.network = network
+        self.classifier_is_3d = classifier_is_3d
         self.cl_a = cl_a
         self.cl_c = cl_c
         self.cl_s = cl_s
@@ -63,9 +64,9 @@ class AutoPETNet(SegmentationNetwork):
 
     def forward(self, x):
 
-        mip_axial = torch.cat([torch.max(x[idx].unsqueeze(0), 4, keepdim=True)[0] for idx in range(np.shape(x)[0])], dim=0)
-        mip_coro = torch.cat([torch.max(x[idx].unsqueeze(0), 3, keepdim=True)[0] for idx in range(np.shape(x)[0])], dim=0)
-        mip_sagi = torch.cat([torch.max(x[idx].unsqueeze(0), 2, keepdim=True)[0] for idx in range(np.shape(x)[0])], dim=0)
+        mip_axial = torch.cat([torch.max(x[idx].unsqueeze(0), 4, keepdim=self.classifier_is_3d)[0] for idx in range(np.shape(x)[0])], dim=0)
+        mip_coro = torch.cat([torch.max(x[idx].unsqueeze(0), 3, keepdim=self.classifier_is_3d)[0] for idx in range(np.shape(x)[0])], dim=0)
+        mip_sagi = torch.cat([torch.max(x[idx].unsqueeze(0), 2, keepdim=self.classifier_is_3d)[0] for idx in range(np.shape(x)[0])], dim=0)
 
         skips = []
         seg_outputs = []
@@ -219,7 +220,9 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         feat_size_coro = tuple(img_d // p_d for img_d, p_d in zip(coro_ps, (16, 1, 16)))
         feat_size_sagi = tuple(img_d // p_d for img_d, p_d in zip(sagi_ps, (1, 16, 16)))
 
-        """model_classiff_axial = ViT(in_channels=self.num_input_channels, 
+        """
+        classifier_is_3d = True
+        model_classiff_axial = ViT(in_channels=self.num_input_channels, 
                                         img_size=axial_ps,
                                         patch_size=(16, 16, 1), classification=False)
         model_classiff_coro = ViT(in_channels=self.num_input_channels,
@@ -230,9 +233,10 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
                                     patch_size=(1, 16, 16), classification=False)
         """
 
-        model_classiff_axial = SEResNet50(layers=(3, 4, 6, 3), reduction=4, spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
-        model_classiff_coro = SEResNet50(layers=(3, 4, 6, 3), reduction=4, spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
-        model_classiff_sagi = SEResNet50(layers=(3, 4, 6, 3), reduction=4, spatial_dims=3, in_channels=self.num_input_channels, num_classes=256)
+        classifier_is_3d = False
+        model_classiff_axial = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
+        model_classiff_coro = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
+        model_classiff_sagi = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
         classifier = nn.Sequential(nn.Linear(3 * 256 + 320, 64),
                                     nn.Linear(32, 8),
                                     nn.Linear(8, 2))
@@ -258,7 +262,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
                                 self.net_num_pool_op_kernel_sizes, self.net_conv_kernel_sizes, False, True, True)
 
         self.network = AutoPETNet(network, model_classiff_axial, model_classiff_coro, model_classiff_sagi,
-                             classifier, feat_size_axial, feat_size_coro, feat_size_sagi)
+                             classifier, feat_size_axial, feat_size_coro, feat_size_sagi, classifier_is_3d)
         network.inference_apply_nonlin = softmax_helper
         if torch.cuda.is_available():
             self.network.cuda()

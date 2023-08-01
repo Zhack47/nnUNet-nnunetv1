@@ -365,6 +365,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
 
         if self.fp16:
             with autocast():
+                print(type(output))
                 output, classif = self.network(data)
                 del data
                 l = self.loss(output, target) + self.classif_loss(classif, target_class.float())

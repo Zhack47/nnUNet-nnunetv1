@@ -98,9 +98,9 @@ class AutoPETNet(SegmentationNetwork):
         feature_c, hs_c = self.cl_c(mip_coro)
         feature_s, hs_s = self.cl_s(mip_sagi)
         features = torch.nn.AvgPool3d((4, 4, 4))(skips[-1])
-        feature_a = torch.nn.AvgPool3d((8, 8, 1))(self.proj_feat(feature_a, self.fs_a))
-        feature_c = torch.nn.AvgPool3d((8, 1, 8))(self.proj_feat(feature_c, self.fs_c))
-        feature_s = torch.nn.AvgPool3d((1, 8, 8))(self.proj_feat(feature_s, self.fs_s))
+        #feature_a = torch.nn.AvgPool3d((8, 8, 1))(self.proj_feat(feature_a, self.fs_a))
+        #feature_c = torch.nn.AvgPool3d((8, 1, 8))(self.proj_feat(feature_c, self.fs_c))
+        #feature_s = torch.nn.AvgPool3d((1, 8, 8))(self.proj_feat(feature_s, self.fs_s))
         all_features = torch.cat([features, feature_a, feature_c, feature_s], dim=1).squeeze(-1).squeeze(-1).squeeze(-1)
         classif = torch.softmax(self.classifier(all_features), dim=1)
         if self.training:

@@ -246,9 +246,9 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         model_classiff_axial = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
         model_classiff_coro = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
         model_classiff_sagi = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
-        classifier = nn.Sequential(nn.Linear(3 * 256 + 320, 64),
-                                    nn.Linear(32, 8),
-                                    nn.Linear(8, 2))
+        classifier = nn.Sequential(nn.Linear(3 * 256 + 320, 128),
+                                    nn.Linear(128, 16),
+                                    nn.Linear(16, 2))
         if self.threeD:
             conv_op = nn.Conv3d
             dropout_op = nn.Dropout3d

@@ -135,7 +135,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                          deterministic, fp16)
         self.max_num_epochs = 250
-        self.initial_lr = 1e-4
+        self.initial_lr = 1e-2
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
 
@@ -248,10 +248,10 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         """
 
         classifier_is_3d = False
-        model_classiff_axial = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
-        model_classiff_coro = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
-        model_classiff_sagi = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=256)
-        classifier = nn.Sequential(nn.Linear(3 * 256 + 320, 128),
+        model_classiff_axial = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=64)
+        model_classiff_coro = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=64)
+        model_classiff_sagi = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=64)
+        classifier = nn.Sequential(nn.Linear(3 * 64 + 320, 128),
                                     nn.Linear(128, 16),
                                     nn.Linear(16, 2))
         if self.threeD:

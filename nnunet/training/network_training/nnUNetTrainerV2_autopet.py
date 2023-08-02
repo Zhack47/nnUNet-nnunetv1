@@ -319,8 +319,8 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         """
         We need to wrap this because we need to enforce self.network.do_ds = False for prediction
         """
-        ds = self.network.do_ds
-        self.network.do_ds = False
+        ds = self.network.network.do_ds
+        self.network.network.do_ds = False
         ret = super().predict_preprocessed_data_return_seg_and_softmax(data,
                                                                        do_mirroring=do_mirroring,
                                                                        mirror_axes=mirror_axes,

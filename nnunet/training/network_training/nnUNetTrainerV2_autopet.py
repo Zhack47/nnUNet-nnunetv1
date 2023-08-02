@@ -107,9 +107,12 @@ class AutoPETNet(SegmentationNetwork):
         feature_c = self.cl_c(mip_coro)
         feature_s = self.cl_s(mip_sagi)
         features = torch.nn.AvgPool3d((8, 8, 8))(skips[-1]).squeeze(-1).squeeze(-1).squeeze(-1)
-        #feature_a = torch.nn.AvgPool3d((8, 8, 1))(self.proj_feat(feature_a, self.fs_a))
-        #feature_c = torch.nn.AvgPool3d((8, 1, 8))(self.proj_feat(feature_c, self.fs_c))
-        #feature_s = torch.nn.AvgPool3d((1, 8, 8))(self.proj_feat(feature_s, self.fs_s))
+        feature_a = torch.nn.AvgPool3d((8, 8, 1))(self.proj_feat(feature_a, self.fs_a))
+        feature_c = torch.nn.AvgPool3d((8, 1, 8))(self.proj_feat(feature_c, self.fs_c))
+        feature_s = torch.nn.AvgPool3d((1, 8, 8))(self.proj_feat(feature_s, self.fs_s))
+        print(feature_a.shape)
+        print(feature_c.shape)
+        print(feature_s.shape)
         all_features = torch.cat([features, feature_a, feature_c, feature_s], dim=1)
         classif = torch.softmax(self.classifier(all_features), dim=1)
         if self.training:
@@ -234,7 +237,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         feat_size_coro = tuple(img_d // p_d for img_d, p_d in zip(coro_ps, (16, 1, 16)))
         feat_size_sagi = tuple(img_d // p_d for img_d, p_d in zip(sagi_ps, (1, 16, 16)))
 
-        """
+        
         classifier_is_3d = True
         model_classiff_axial = ViT(in_channels=self.num_input_channels, 
                                         img_size=axial_ps,
@@ -245,15 +248,15 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         model_classiff_sagi = ViT(in_channels=self.num_input_channels, 
                                     img_size=sagi_ps,
                                     patch_size=(1, 16, 16), classification=False)
-        """
+        classifier = nn.Linear(3 * 768 + 128, 2)
 
-        classifier_is_3d = False
+        """classifier_is_3d = False
         model_classiff_axial = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=64)
         model_classiff_coro = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=64)
         model_classiff_sagi = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=64)
         classifier = nn.Sequential(nn.Linear(3 * 64 + 320, 128),
                                     nn.Linear(128, 16),
-                                    nn.Linear(16, 2))
+                                    nn.Linear(16, 2))"""
         if self.threeD:
             conv_op = nn.Conv3d
             dropout_op = nn.Dropout3d

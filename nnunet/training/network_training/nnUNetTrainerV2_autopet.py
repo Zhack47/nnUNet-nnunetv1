@@ -63,6 +63,7 @@ class AutoPETNet(SegmentationNetwork):
         self.hidden_size = 768
         spatial_dims = 3
         self.proj_axes = (0, spatial_dims + 1) + tuple(d + 1 for d in range(spatial_dims))
+        self.parameters = list(self.network.parameters()) + list(self.cl_a) + list(self.cl_c) + list(self.cl_s) + list(self.classifier)
 
     def proj_feat(self, x, feat_size):
         self.proj_view_shape = list(feat_size) + [self.hidden_size]

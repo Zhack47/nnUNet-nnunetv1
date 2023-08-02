@@ -354,12 +354,12 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
             torch.cat([torch.max(target[0][idx]).long().unsqueeze(0) for idx in range(np.shape(target[0])[0])], dim=0), num_classes=2)
         data = maybe_to_torch(data)
         target = maybe_to_torch(target)
-        target = maybe_to_torch(target_class)
+        target_class = maybe_to_torch(target_class)
 
         if torch.cuda.is_available():
             data = to_cuda(data)
             target = to_cuda(target)
-            target = to_cuda(target_class)
+            target_class = to_cuda(target_class)
 
         self.optimizer.zero_grad()
 

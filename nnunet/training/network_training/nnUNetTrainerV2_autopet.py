@@ -113,6 +113,7 @@ class AutoPETNet(SegmentationNetwork):
         print(feature_a.shape)
         print(feature_c.shape)
         print(feature_s.shape)
+        print(features.shape)
         all_features = torch.cat([features, feature_a, feature_c, feature_s], dim=1)
         classif = torch.softmax(self.classifier(all_features), dim=1)
         if self.training:

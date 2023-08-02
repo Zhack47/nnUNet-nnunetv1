@@ -362,10 +362,11 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
             with autocast():
                 if do_backprop:
                     output, classif = self.network(data)
+                    l = self.loss(output, target) + self.classif_loss(classif, target_class.float())
                 else:
                     output = self.network(data)
+                    l = self.loss(output, target)
                 del data
-                l = self.loss(output, target) + self.classif_loss(classif, target_class.float())
 
             if do_backprop:
                 self.amp_grad_scaler.scale(l).backward()
@@ -376,10 +377,11 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         else:
             if do_backprop:
                 output, classif = self.network(data)
+                l = self.loss(output, target) + self.classif_loss(classif, target_class.float())
             else:
                 output = self.network(data)
+                l = self.loss(output, target)
                 del data
-            l = self.loss(output, target) + self.classif_loss(classif, target_class.float())
 
             if do_backprop:
                 l.backward()

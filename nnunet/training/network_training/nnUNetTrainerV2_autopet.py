@@ -96,15 +96,10 @@ class AutoPETNet(SegmentationNetwork):
                                               zip(list(self.network.upscale_logits_ops)[::-1], seg_outputs[:-1][::-1])])
         else:
             output = seg_outputs[-1]
-        print(type(output))
         feature_a = self.cl_a(mip_axial)
         feature_c = self.cl_c(mip_coro)
         feature_s = self.cl_s(mip_sagi)
         features = torch.nn.AvgPool3d((8, 8, 8))(skips[-1]).squeeze(-1).squeeze(-1).squeeze(-1)
-        print(features.shape)
-        print(feature_a.shape)
-        print(feature_c.shape)
-        print(feature_s.shape)
         #feature_a = torch.nn.AvgPool3d((8, 8, 1))(self.proj_feat(feature_a, self.fs_a))
         #feature_c = torch.nn.AvgPool3d((8, 1, 8))(self.proj_feat(feature_c, self.fs_c))
         #feature_s = torch.nn.AvgPool3d((1, 8, 8))(self.proj_feat(feature_s, self.fs_s))
@@ -113,7 +108,7 @@ class AutoPETNet(SegmentationNetwork):
         if self.training:
             return output, classif
         else:
-            if isinstance(output, list):
+            if isinstance(output, (tuple, list)):
                 for i in range(output[0].shape[0]):
                     output[0][i] = output[0][i] * torch.argmax(classif, dim=1)[i]
                 return output
@@ -366,7 +361,6 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         if self.fp16:
             with autocast():
                 output, classif = self.network(data)
-                print(type(output))
                 del data
                 l = self.loss(output, target) + self.classif_loss(classif, target_class.float())
 

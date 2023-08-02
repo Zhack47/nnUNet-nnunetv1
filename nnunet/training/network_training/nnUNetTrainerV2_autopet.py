@@ -43,6 +43,13 @@ class AutoPETNet(SegmentationNetwork):
     def __init__(self, network, cl_a, cl_c, cl_s, classifier, fs_a, fs_c, fs_s, classifier_is_3d):
         super().__init__()
         self.network = network
+        self.conv_op = self.network.conv_op
+        self.num_classes = self.network.num_classes
+        self.inference_apply_nonlin = self.network.inference_apply_nonlin
+        self._gaussian_3d = self.network._gaussian_3d
+        self._gaussian_2d = self.network._gaussian_2d
+        self._patch_size_for_gaussian_3d = self.network._patch_size_for_gaussian_3d
+        self._patch_size_for_gaussian_2d = self.network._patch_size_for_gaussian_2d
         self.network.do_ds = True
         self.network._deep_supervision = True
         self.classifier_is_3d = classifier_is_3d

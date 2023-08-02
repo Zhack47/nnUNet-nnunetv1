@@ -63,6 +63,7 @@ class AutoPETNet(SegmentationNetwork):
         self.hidden_size = 768
         spatial_dims = 3
         self.proj_axes = (0, spatial_dims + 1) + tuple(d + 1 for d in range(spatial_dims))
+        print(self.parameters)
         self.parameters = list(self.network.parameters()) + list(self.cl_a.parameters())
         + list(self.cl_c.parameters()) + list(self.cl_s.parameters()) + list(self.classifier.parameters())
 
@@ -285,6 +286,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
 
     def initialize_optimizer_and_scheduler(self):
         assert self.network is not None, "self.initialize_network must be called first"
+        print(self.network.parameters())
         self.optimizer = torch.optim.SGD(self.network.parameters(), self.initial_lr, weight_decay=self.weight_decay,
                                          momentum=0.99, nesterov=True)
         self.lr_scheduler = None

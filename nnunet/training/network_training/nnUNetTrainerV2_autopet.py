@@ -114,7 +114,7 @@ class AutoPETNet(SegmentationNetwork):
         print(feature_c.shape)
         print(feature_s.shape)
         print(features.shape)
-        all_features = torch.cat([features, feature_a, feature_c, feature_s], dim=1)
+        all_features = torch.cat([features, feature_a, feature_c, feature_s], dim=1).squeeze(-1).squeeze(-1).squeeze(-1)
         classif = torch.softmax(self.classifier(all_features), dim=1)
         if self.training:
             return output, classif
@@ -249,7 +249,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         model_classiff_sagi = ViT(in_channels=self.num_input_channels, 
                                     img_size=sagi_ps,
                                     patch_size=(1, 16, 16), classification=False)
-        classifier = nn.Linear(3 * 768 + 128, 2)
+        classifier = nn.Linear(3 * 768 + 320, 2)
 
         """classifier_is_3d = False
         model_classiff_axial = SEResNet50(spatial_dims=2, in_channels=self.num_input_channels, num_classes=64)

@@ -247,7 +247,7 @@ class nnUNetTrainerV2_autopet(nnUNetTrainer):
         model_classiff_sagi = ViT(in_channels=self.num_input_channels, 
                                     img_size=sagi_ps,
                                     patch_size=(1, 16, 16), classification=False)
-        classifier = nn.Sequential(nn.Linear(3 * 768 + 320, 2),
+        classifier = nn.Sequential(nn.Linear(3 * 768 + 320, 128),
                                    nn.Linear(128, 16),
                                    nn.Linear(16, 2))
 

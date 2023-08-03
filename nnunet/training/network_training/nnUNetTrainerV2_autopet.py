@@ -117,11 +117,11 @@ class AutoPETNet(SegmentationNetwork):
         else:
             if isinstance(output, (tuple, list)):
                 for i in range(output[0].shape[0]):
-                    output[0][i] = output[0][i] * torch.argmax(classif, dim=1)[i]
+                    output[0][i] = output[0][i] * int(classif[i, 1]<.1)
                 return output
             else:
                 for i in range(output.shape[0]):
-                    output[i] = output[i] * torch.argmax(classif, dim=1)[i]
+                    output[i] = output[i] * int(classif[i, 1]<.1)
                 return output
 
 
